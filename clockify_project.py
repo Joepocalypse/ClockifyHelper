@@ -1,3 +1,5 @@
+# pylint: disable=too-few-public-methods
+
 """Module to house the class below"""
 
 class ClockifyProject():
