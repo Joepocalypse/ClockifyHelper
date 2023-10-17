@@ -2,6 +2,8 @@ from datetime import datetime
 import pytz
 
 class ClockifyTimeEntry():
+    """Class representing a Clockify time entry"""
+
     def __init__(self,incoming_time_entry,time_zone):
         self.id = incoming_time_entry['id']
         self.description = incoming_time_entry['description'].strip()

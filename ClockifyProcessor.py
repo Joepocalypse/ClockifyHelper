@@ -1,27 +1,25 @@
 import requests
 import json
-from datetime import date, datetime, timedelta
-import pytz
+from datetime import date
 from Keywords import keywords
 from ClockifyProject import ClockifyProject
 from ClockifyTask import ClockifyTask
 from ClockifyTimeEntry import ClockifyTimeEntry
 from ClockifyTag import ClockifyTag
 
-api_key = "<YOUR CLOCKIFY API KEY HERE>"
+API_KEY = "<YOUR CLOCKIFY API KEY HERE>"
 update_mark = ' *'
 today = date.today().strftime("%Y-%m-%dT00:00:00-04:00")
 
 def call_clockify_api(url):
     #test
-    headers = {'x-api-key' : api_key}
+    headers = {'x-api-key' : API_KEY}
     r =requests.get(url, headers=headers)
     return json.loads(r.content)
 
 def call_clockify_time_entries_api(workspace_id, user_id):
-    url = 'https://api.clockify.me/api/v1/workspaces/{}/user/{}/time-entries'.format(workspace_id,
-                                                                                     user_id)
-    headers = {'x-api-key': api_key}
+    url = 'https://api.clockify.me/api/v1/workspaces/{}/user/{}/time-entries'.format(workspace_id, user_id)
+    headers = {'x-api-key': API_KEY}
     parameters  = {
         "start" : today,
         "page-size" : "100"
@@ -55,7 +53,7 @@ def update_time_entry (workspace_id, time_entry, project_obj, task_obj, tag_obj)
 
     url = 'https://api.clockify.me/api/v1/workspaces/{}/time-entries/{}'.format(workspace_id,
                                                                                 time_entry.id)
-    headers = {'x-api-key': api_key, 'Content-Type': 'application/json'}
+    headers = {'x-api-key': API_KEY, 'Content-Type': 'application/json'}
     data  = {
         "description" : time_entry.description + update_mark,
         "start" : time_entry.start,
@@ -85,7 +83,7 @@ def evaluate_keywords(keywords, project_list, task_list, tag_list):
         else:
             # Search task list for provided task name, taking parent project into account
             task_results = [task for task in task_list if (task.name == current_task or 
-                                                           task.id is None) and 
+                                                           task.id is None) and
                                                            task.project_id == project_results[0].id]
 
             if len(task_results) == 0 and current_task != '':
@@ -181,7 +179,7 @@ keywords_valid = evaluate_keywords(keywords, project_list, task_list, tag_list)
 if keywords_valid is True:
     # Process/evaluate/update time entries
     for time_entry in time_entry_object_list:
-        msg = ''
+        MSG = ''
         new_project = ""
         new_task = {}
         new_tag = ""
@@ -203,7 +201,7 @@ if keywords_valid is True:
                 new_project_obj = validate_search_results([project for project in project_list
                                                            if project.name == new_project])
                 new_task_obj = validate_search_results([task for task in task_list if task.name ==
-                                                        new_task and task.project_id == 
+                                                        new_task and task.project_id ==
                                                         new_project_obj.id])
                 new_tag_obj = validate_search_results([tag for tag in tag_list if tag.name ==
                                                        new_tag])
@@ -214,7 +212,7 @@ if keywords_valid is True:
                 if update_results is None:
                     entry_updated = False
                 elif update_results['id']:
-                    msg = '| *** Time Entry Updated for Keyword [{}] ***'.format(keyword)
+                    MSG = '| *** Time Entry Updated for Keyword [{}] ***'.format(keyword)
                     updates += 1
                 else:
                     print_api_call_results(update_results)
@@ -235,6 +233,6 @@ if keywords_valid is True:
                 if updates > 0:
                     break
 
-        time_entry_output += '({} / {}) {}'.format(final_project.name, final_task_name, msg)
+        time_entry_output += '({} / {}) {}'.format(final_project.name, final_task_name, MSG)
 
         print(time_entry_output)
