@@ -1,3 +1,5 @@
+"""Module to house the class below"""
+
 from datetime import datetime
 import pytz
 
@@ -13,7 +15,7 @@ class ClockifyTimeEntry():
         self.task_id = incoming_time_entry['taskId']
         self.project_id = incoming_time_entry['projectId']
         self.workspace_id = incoming_time_entry['workspaceId']
-        self.duration = incoming_time_entry['timeInterval']['duration']     
+        self.duration = incoming_time_entry['timeInterval']['duration']
 
         self.pytz_timezone = pytz.timezone(time_zone)
 
@@ -38,7 +40,8 @@ class ClockifyTimeEntry():
 # 'taskId': '63efa255cf0b257026d87a2d',
 # 'projectId': '63988e3819e7630fd51fac2a',
 # 'workspaceId': '6396899a9b39be4a8aef565f',
-# 'timeInterval': {'start': '2023-10-12T14:00:00Z','end': '2023-10-12T14:30:00Z','duration': 'PT30M'},
+# 'timeInterval': {'start': '2023-10-12T14:00:00Z',
+# 'end': '2023-10-12T14:30:00Z','duration': 'PT30M'},
 # 'customFieldValues': [],
 # 'type': 'REGULAR',
 # 'kioskId': None,

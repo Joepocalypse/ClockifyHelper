@@ -1,3 +1,5 @@
+"""Module to house the class below"""
+
 class ClockifyTag():
     """Class representing a Clockify tag"""
 

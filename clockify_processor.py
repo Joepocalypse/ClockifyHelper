@@ -8,16 +8,19 @@ from clockify_time_entry import ClockifyTimeEntry
 from clockify_tag import ClockifyTag
 
 API_KEY = "<YOUR CLOCKIFY API KEY HERE>"
-update_mark = ' *'
+UPDATE_MARK = ' *'
 today = date.today().strftime("%Y-%m-%dT00:00:00-04:00")
 
 def call_clockify_api(url):
-    #test
+    """Used to call the Clockify API"""
+
     headers = {'x-api-key' : API_KEY}
     r =requests.get(url, headers=headers)
     return json.loads(r.content)
 
 def call_clockify_time_entries_api(workspace_id, user_id):
+    """Used to call the Clockify time entry api specifically"""
+
     url = 'https://api.clockify.me/api/v1/workspaces/{}/user/{}/time-entries'.format(workspace_id, user_id)
     headers = {'x-api-key': API_KEY}
     parameters  = {
@@ -28,15 +31,21 @@ def call_clockify_time_entries_api(workspace_id, user_id):
     return json.loads(r.content)
 
 def print_api_call_results(results):
+    """Prints the results of a Clockify API call in a readable way"""
+
     print(json.dumps(results, indent=4))
 
 def get_time_entry(workspace_id, entry_id):
+    """Retrieves a specific Clockify time entry"""
+
     this_time_entry_url = 'https://api.clockify.me/api/v1/workspaces/{}/time-entries/{}'.format(
         workspace_id, entry_id)
     this_time_entry = call_clockify_api(this_time_entry_url)
     return  this_time_entry
 
 def update_time_entry (workspace_id, time_entry, project_obj, task_obj, tag_obj):
+    """Updates a specific Clockify time entry"""
+
     if(task_obj is None or task_obj.id == ""):
         task_id = ""
     else:
@@ -48,14 +57,14 @@ def update_time_entry (workspace_id, time_entry, project_obj, task_obj, tag_obj)
         tag_ids = [tag_obj.id]
 
     if (time_entry.project_id == project_obj.id and time_entry.task_id == task_id and 
-        time_entry.tag_ids == tag_ids) or time_entry.description.endswith(update_mark):
+        time_entry.tag_ids == tag_ids) or time_entry.description.endswith(UPDATE_MARK):
         return None
 
     url = 'https://api.clockify.me/api/v1/workspaces/{}/time-entries/{}'.format(workspace_id,
                                                                                 time_entry.id)
     headers = {'x-api-key': API_KEY, 'Content-Type': 'application/json'}
     data  = {
-        "description" : time_entry.description + update_mark,
+        "description" : time_entry.description + UPDATE_MARK,
         "start" : time_entry.start,
         "end": time_entry.end,
         "projectId": project_obj.id,
@@ -66,6 +75,8 @@ def update_time_entry (workspace_id, time_entry, project_obj, task_obj, tag_obj)
     return json.loads(r.content)
 
 def evaluate_keywords(keywords, project_list, task_list, tag_list):
+    """Evaluates the keywords file to find erroneous entries"""
+
     keywords_valid = True
 
     for keyword in keywords:
@@ -100,6 +111,8 @@ def evaluate_keywords(keywords, project_list, task_list, tag_list):
     return keywords_valid
 
 def validate_search_results(results):
+    """Checks search results and returns None if no results are present"""
+
     valid_result = None
     if len(results) > 0:
         valid_result = results[0]

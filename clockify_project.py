@@ -1,4 +1,8 @@
+"""Module to house the class below"""
+
 class ClockifyProject():
+    """Class representing a Clockify project"""
+
     def __init__(self,incoming_project):
         self.id = incoming_project['id']
         self.name = incoming_project['name']

@@ -1,3 +1,5 @@
+"""Module to house the class below"""
+
 class ClockifyTask():
     """Class representing a Clockify task"""
 
