@@ -1,11 +1,11 @@
 import requests
 import json
 from datetime import date
-from Keywords import keywords
-from ClockifyProject import ClockifyProject
-from ClockifyTask import ClockifyTask
-from ClockifyTimeEntry import ClockifyTimeEntry
-from ClockifyTag import ClockifyTag
+from keywords import keywords
+from clockify_project import ClockifyProject
+from clockify_task import ClockifyTask
+from clockify_time_entry import ClockifyTimeEntry
+from clockify_tag import ClockifyTag
 
 API_KEY = "<YOUR CLOCKIFY API KEY HERE>"
 update_mark = ' *'
