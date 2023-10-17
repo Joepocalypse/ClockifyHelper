@@ -8,7 +8,7 @@ from ClockifyTask import ClockifyTask
 from ClockifyTimeEntry import ClockifyTimeEntry
 from ClockifyTag import ClockifyTag
 
-api_key = "<YOUR CLOCKIFY API KEY HERE>"
+api_key = "ZWEyZGFkY2UtZjYwZC00ZGNjLWEzZjQtNWZmZDU0Mzk4NTky"
 update_mark = ' *'
 today = date.today().strftime("%Y-%m-%dT00:00:00-04:00")
 
@@ -47,7 +47,7 @@ def update_time_entry (workspace_id, time_entry, project_obj, task_obj, tag_obj)
     else:
         tag_ids = [tag_obj.id]
 
-    if (time_entry.projectId == project_obj.id and time_entry.taskId == task_id and time_entry.tagIds == tag_ids) or time_entry.description.endswith(update_mark):
+    if (time_entry.project_id == project_obj.id and time_entry.task_id == task_id and time_entry.tag_ids == tag_ids) or time_entry.description.endswith(update_mark):
         return None
 
     url = 'https://api.clockify.me/api/v1/workspaces/{}/time-entries/{}'.format(workspace_id, time_entry.id)
@@ -80,7 +80,7 @@ def evaluate_keywords(keywords, project_list, task_list, tag_list):
             keywords_valid = False
         else:
             # Search task list for provided task name, taking parent project into account
-            task_results = [task for task in task_list if (task.name == current_task or task.id is None) and task.projectId == project_results[0].id]         
+            task_results = [task for task in task_list if (task.name == current_task or task.id is None) and task.project_id == project_results[0].id]         
             
             if len(task_results) == 0 and current_task != '':
                 print("Task [{}] does not exist under project [{}] for keyword [{}].".format(current_task, current_project, keyword))
@@ -179,7 +179,7 @@ if keywords_valid is True:
         update_needed = False
         updates = 0
 
-        time_entry_output = '\t{} to {} {}: {} '.format(time_entry.readableStart, time_entry.readableEnd, time_entry.timeZoneName, time_entry.description)
+        time_entry_output = '\t{} to {} {}: {} '.format(time_entry.readable_start, time_entry.readable_end, time_entry.timezone_name, time_entry.description)
         
         for keyword in keywords:            
             if keyword.lower() in time_entry.description.lower() and updates == 0:
@@ -189,7 +189,7 @@ if keywords_valid is True:
                 new_tag = keywords[keyword]['tag']
 
                 new_project_obj = validate_search_results([project for project in project_list if project.name == new_project])
-                new_task_obj = validate_search_results([task for task in task_list if task.name == new_task and task.projectId == new_project_obj.id])
+                new_task_obj = validate_search_results([task for task in task_list if task.name == new_task and task.project_id == new_project_obj.id])
                 new_tag_obj = validate_search_results([tag for tag in tag_list if tag.name == new_tag])
 
                 update_results = update_time_entry(workspace_id, time_entry, new_project_obj, new_task_obj, new_tag_obj)
