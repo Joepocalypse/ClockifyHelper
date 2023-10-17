@@ -85,7 +85,7 @@ def update_time_entry (workspace_id, time_entry, project_obj, task_obj, tag_obj)
 def evaluate_keywords(keywords, project_list, task_list, tag_list):
     """Evaluates the keywords file to find erroneous entries"""
 
-    KEY_WORDS_VALID = True
+    keywords_valid = True
 
     for keyword in keywords:
         # print ("Validating Keyword [{}]".format(keyword))
@@ -98,7 +98,7 @@ def evaluate_keywords(keywords, project_list, task_list, tag_list):
 
         if len(project_results) == 0:
             print("Invalid project [{}] for keyword [{}].".format(current_project, keyword))
-            KEY_WORDS_VALID = False
+            keywords_valid = False
         else:
             # Search task list for provided task name, taking parent project into account
             task_results = [task for task in task_list if (task.name == current_task or
@@ -108,15 +108,15 @@ def evaluate_keywords(keywords, project_list, task_list, tag_list):
             if len(task_results) == 0 and current_task != '':
                 print("Task [{}] does not exist under project [{}] for keyword [{}].".format(
                     current_task, current_project, keyword))
-                KEY_WORDS_VALID = False
+                keywords_valid = False
 
             # Search tag list for provided tag name
             tag_results = [tag for tag in tag_list if tag.name == current_tag]
             if len(tag_results) == 0 and current_tag != '':
                 print("Invalid tag [{}] for keyword [{}].".format(current_tag, keyword))
-                KEY_WORDS_VALID = False
+                keywords_valid = False
 
-    return KEY_WORDS_VALID
+    return keywords_valid
 
 def validate_search_results(results):
     """Checks search results and returns None if no results are present"""
