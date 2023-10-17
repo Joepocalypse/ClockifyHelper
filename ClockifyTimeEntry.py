@@ -11,7 +11,7 @@ class ClockifyTimeEntry():
         self.task_id = incoming_time_entry['taskId']
         self.project_id = incoming_time_entry['projectId']
         self.workspace_id = incoming_time_entry['workspaceId']
-        self.duration = incoming_time_entry['timeInterval']['duration']
+        self.duration = incoming_time_entry['timeInterval']['duration']     
 
         self.pytz_timezone = pytz.timezone(time_zone)
 

@@ -8,7 +8,7 @@ from ClockifyTask import ClockifyTask
 from ClockifyTimeEntry import ClockifyTimeEntry
 from ClockifyTag import ClockifyTag
 
-api_key = "ZWEyZGFkY2UtZjYwZC00ZGNjLWEzZjQtNWZmZDU0Mzk4NTky"
+api_key = "<YOUR CLOCKIFY API KEY HERE>"
 update_mark = ' *'
 today = date.today().strftime("%Y-%m-%dT00:00:00-04:00")
 
@@ -19,7 +19,8 @@ def call_clockify_api(url):
     return json.loads(r.content)
 
 def call_clockify_time_entries_api(workspace_id, user_id):
-    url = 'https://api.clockify.me/api/v1/workspaces/{}/user/{}/time-entries'.format(workspace_id, user_id)
+    url = 'https://api.clockify.me/api/v1/workspaces/{}/user/{}/time-entries'.format(workspace_id,
+                                                                                     user_id)
     headers = {'x-api-key': api_key}
     parameters  = {
         "start" : today,
@@ -32,7 +33,8 @@ def print_api_call_results(results):
     print(json.dumps(results, indent=4))
 
 def get_time_entry(workspace_id, entry_id):
-    this_time_entry_url = 'https://api.clockify.me/api/v1/workspaces/{}/time-entries/{}'.format(workspace_id, entry_id)
+    this_time_entry_url = 'https://api.clockify.me/api/v1/workspaces/{}/time-entries/{}'.format(
+        workspace_id, entry_id)
     this_time_entry = call_clockify_api(this_time_entry_url)
     return  this_time_entry
 
@@ -47,10 +49,12 @@ def update_time_entry (workspace_id, time_entry, project_obj, task_obj, tag_obj)
     else:
         tag_ids = [tag_obj.id]
 
-    if (time_entry.project_id == project_obj.id and time_entry.task_id == task_id and time_entry.tag_ids == tag_ids) or time_entry.description.endswith(update_mark):
+    if (time_entry.project_id == project_obj.id and time_entry.task_id == task_id and 
+        time_entry.tag_ids == tag_ids) or time_entry.description.endswith(update_mark):
         return None
 
-    url = 'https://api.clockify.me/api/v1/workspaces/{}/time-entries/{}'.format(workspace_id, time_entry.id)
+    url = 'https://api.clockify.me/api/v1/workspaces/{}/time-entries/{}'.format(workspace_id,
+                                                                                time_entry.id)
     headers = {'x-api-key': api_key, 'Content-Type': 'application/json'}
     data  = {
         "description" : time_entry.description + update_mark,
@@ -63,9 +67,9 @@ def update_time_entry (workspace_id, time_entry, project_obj, task_obj, tag_obj)
     r = requests.put(url, headers=headers, data=json.dumps(data))
     return json.loads(r.content)
 
-def evaluate_keywords(keywords, project_list, task_list, tag_list):    
+def evaluate_keywords(keywords, project_list, task_list, tag_list):
     keywords_valid = True
-    
+
     for keyword in keywords:
         # print ("Validating Keyword [{}]".format(keyword))
         current_project = keywords[keyword]['project']
@@ -74,21 +78,24 @@ def evaluate_keywords(keywords, project_list, task_list, tag_list):
 
         # Search project list for provided project name
         project_results = [project for project in project_list if project.name == current_project]
-        
+
         if len(project_results) == 0:
             print("Invalid project [{}] for keyword [{}].".format(current_project, keyword))
             keywords_valid = False
         else:
             # Search task list for provided task name, taking parent project into account
-            task_results = [task for task in task_list if (task.name == current_task or task.id is None) and task.project_id == project_results[0].id]         
-            
+            task_results = [task for task in task_list if (task.name == current_task or 
+                                                           task.id is None) and 
+                                                           task.project_id == project_results[0].id]
+
             if len(task_results) == 0 and current_task != '':
-                print("Task [{}] does not exist under project [{}] for keyword [{}].".format(current_task, current_project, keyword))
+                print("Task [{}] does not exist under project [{}] for keyword [{}].".format(
+                    current_task, current_project, keyword))
                 keywords_valid = False
 
             # Search tag list for provided tag name
             tag_results = [tag for tag in tag_list if tag.name == current_tag]
-            if len(tag_results) == 0 and current_tag != '':                
+            if len(tag_results) == 0 and current_tag != '':
                 print("Invalid tag [{}] for keyword [{}].".format(current_tag, keyword))
                 keywords_valid = False
 
@@ -135,10 +142,11 @@ for project in projects_info:
         this_project = ClockifyProject(project)
         project_list.append(this_project)
 
-        tasks_url = 'https://api.clockify.me/api/v1/workspaces/{}/projects/{}/tasks'.format(workspace_id, this_project.id)
+        tasks_url = 'https://api.clockify.me/api/v1/workspaces/{}/projects/{}/tasks'.format(
+            workspace_id, this_project.id)
         tasks_info = call_clockify_api(tasks_url)
-        
-        for task in tasks_info:            
+
+        for task in tasks_info:
             task_list.append(ClockifyTask(task))
 
 # ***** TAGS *****
@@ -153,7 +161,8 @@ for tag in tags_info:
     tag_list.append(ClockifyTag(tag))
 
 # ***** TIME ENTRIES *****
-time_entries_url = 'https://api.clockify.me/api/v1/workspaces/{}/user/{}/time-entries'.format(workspace_id, user_id)
+time_entries_url = 'https://api.clockify.me/api/v1/workspaces/{}/user/{}/time-entries'.format(
+    workspace_id, user_id)
 time_entries_info = call_clockify_time_entries_api(workspace_id, user_id)
 
 print('Loading time entries starting on {}...'.format(date.today().strftime("%m/%d/%Y")))
@@ -179,38 +188,50 @@ if keywords_valid is True:
         update_needed = False
         updates = 0
 
-        time_entry_output = '\t{} to {} {}: {} '.format(time_entry.readable_start, time_entry.readable_end, time_entry.timezone_name, time_entry.description)
-        
-        for keyword in keywords:            
+        time_entry_output = '\t{} to {} {}: {} '.format(time_entry.readable_start,
+                                                        time_entry.readable_end,
+                                                        time_entry.timezone_name,
+                                                        time_entry.description)
+
+        for keyword in keywords:
             if keyword.lower() in time_entry.description.lower() and updates == 0:
                 entry_updated = False
                 new_project = keywords[keyword]['project']
                 new_task = keywords[keyword]['task']
                 new_tag = keywords[keyword]['tag']
 
-                new_project_obj = validate_search_results([project for project in project_list if project.name == new_project])
-                new_task_obj = validate_search_results([task for task in task_list if task.name == new_task and task.project_id == new_project_obj.id])
-                new_tag_obj = validate_search_results([tag for tag in tag_list if tag.name == new_tag])
+                new_project_obj = validate_search_results([project for project in project_list
+                                                           if project.name == new_project])
+                new_task_obj = validate_search_results([task for task in task_list if task.name ==
+                                                        new_task and task.project_id == 
+                                                        new_project_obj.id])
+                new_tag_obj = validate_search_results([tag for tag in tag_list if tag.name ==
+                                                       new_tag])
 
-                update_results = update_time_entry(workspace_id, time_entry, new_project_obj, new_task_obj, new_tag_obj)
-                
+                update_results = update_time_entry(workspace_id, time_entry, new_project_obj,
+                                                   new_task_obj, new_tag_obj)
+
                 if update_results is None:
                     entry_updated = False
                 elif update_results['id']:
-                    msg = '| *** Time Entry Updated for Keyword [{}] ***'.format(keyword)    
-                    updates += 1   
+                    msg = '| *** Time Entry Updated for Keyword [{}] ***'.format(keyword)
+                    updates += 1
                 else:
-                    print_api_call_results(update_results)                    
+                    print_api_call_results(update_results)
 
-                final_time_entry = ClockifyTimeEntry(get_time_entry(workspace_id, time_entry.id), user_timezone)                
-                final_project = validate_search_results([project for project in project_list if project.id == final_time_entry.project_id])
-                final_task = validate_search_results([task for task in task_list if task.id == final_time_entry.task_id])
-                
+                final_time_entry = ClockifyTimeEntry(get_time_entry(workspace_id, time_entry.id),
+                                                     user_timezone)
+                final_project = validate_search_results([project for project
+                                                         in project_list if project.id ==
+                                                         final_time_entry.project_id])
+                final_task = validate_search_results([task for task in task_list if task.id ==
+                                                       final_time_entry.task_id])
+
                 if final_task is None:
                     final_task_name = "No Task"
                 else:
                     final_task_name = final_task.name
-                
+
                 if updates > 0:
                     break
 

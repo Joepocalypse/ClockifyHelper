@@ -3,7 +3,7 @@ class ClockifyTag():
         self.id = incoming_tag['id']
         self.name = incoming_tag['name']
         self.workspace_id = incoming_tag['workspaceId']
-        self.archived = incoming_tag['archived']  
+        self.archived = incoming_tag['archived']       
 
 #{'id': '63968a2319e7630fd50eb214', 
 # 'name': 'mobile', 
