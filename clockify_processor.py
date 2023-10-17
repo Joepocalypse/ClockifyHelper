@@ -149,7 +149,7 @@ for client in clients_info:
 projects_url = 'https://api.clockify.me/api/v1/workspaces/{}/projects'.format(workspace_id)
 projects_info = call_clockify_api(projects_url)
 
-project_id = ''
+PROJECT_ID = ''
 project_list = []
 task_list = []
 
