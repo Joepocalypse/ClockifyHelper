@@ -1,9 +1,9 @@
 class ClockifyTag():
-    def __init__(self, incoming_tag):        
+    def __init__(self, incoming_tag):
         self.id = incoming_tag['id']
         self.name = incoming_tag['name']
-        self.workspaceId = incoming_tag['workspaceId']        
-        self.archived = incoming_tag['archived']        
+        self.workspace_id = incoming_tag['workspaceId']
+        self.archived = incoming_tag['archived']  
 
 #{'id': '63968a2319e7630fd50eb214', 
 # 'name': 'mobile', 

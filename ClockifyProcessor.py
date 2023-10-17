@@ -203,8 +203,8 @@ if keywords_valid is True:
                     print_api_call_results(update_results)                    
 
                 final_time_entry = ClockifyTimeEntry(get_time_entry(workspace_id, time_entry.id), user_timezone)                
-                final_project = validate_search_results([project for project in project_list if project.id == final_time_entry.projectId])
-                final_task = validate_search_results([task for task in task_list if task.id == final_time_entry.taskId])
+                final_project = validate_search_results([project for project in project_list if project.id == final_time_entry.project_id])
+                final_task = validate_search_results([task for task in task_list if task.id == final_time_entry.task_id])
                 
                 if final_task is None:
                     final_task_name = "No Task"
