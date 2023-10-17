@@ -1,3 +1,5 @@
+# pylint: disable=consider-using-f-string
+
 import requests
 import json
 from datetime import date
@@ -149,7 +151,7 @@ task_list = []
 
 print('Loading projects and associated tasks...')
 for project in projects_info:
-    if project['archived'] == False and project['clientId'] == client_id:
+    if project['archived'] is False and project['clientId'] == client_id:
         this_project = ClockifyProject(project)
         project_list.append(this_project)
 
@@ -193,11 +195,11 @@ if keywords_valid is True:
     # Process/evaluate/update time entries
     for time_entry in time_entry_object_list:
         MSG = ''
-        new_project = ""
-        new_task = {}
-        new_tag = ""
-        update_needed = False
-        updates = 0
+        NEW_PROJECT = ""
+        NEW_TASK = {}
+        NEW_TAG = ""
+        UPDATE_NEEDED = False
+        UPDATES = 0
 
         time_entry_output = '\t{} to {} {}: {} '.format(time_entry.readable_start,
                                                         time_entry.readable_end,
@@ -205,19 +207,19 @@ if keywords_valid is True:
                                                         time_entry.description)
 
         for keyword in keywords:
-            if keyword.lower() in time_entry.description.lower() and updates == 0:
+            if keyword.lower() in time_entry.description.lower() and UPDATES == 0:
                 entry_updated = False
-                new_project = keywords[keyword]['project']
-                new_task = keywords[keyword]['task']
-                new_tag = keywords[keyword]['tag']
+                NEW_PROJECT = keywords[keyword]['project']
+                NEW_TASK = keywords[keyword]['task']
+                NEW_TAG = keywords[keyword]['tag']
 
                 new_project_obj = validate_search_results([project for project in project_list
-                                                           if project.name == new_project])
+                                                           if project.name == NEW_PROJECT])
                 new_task_obj = validate_search_results([task for task in task_list if task.name ==
-                                                        new_task and task.project_id ==
+                                                        NEW_TASK and task.project_id ==
                                                         new_project_obj.id])
                 new_tag_obj = validate_search_results([tag for tag in tag_list if tag.name ==
-                                                       new_tag])
+                                                       NEW_TAG])
 
                 update_results = update_time_entry(workspace_id, time_entry, new_project_obj,
                                                    new_task_obj, new_tag_obj)
@@ -226,7 +228,7 @@ if keywords_valid is True:
                     entry_updated = False
                 elif update_results['id']:
                     MSG = '| *** Time Entry Updated for Keyword [{}] ***'.format(keyword)
-                    updates += 1
+                    UPDATES += 1
                 else:
                     print_api_call_results(update_results)
 
@@ -243,7 +245,7 @@ if keywords_valid is True:
                 else:
                     final_task_name = final_task.name
 
-                if updates > 0:
+                if UPDATES > 0:
                     break
 
         time_entry_output += '({} / {}) {}'.format(final_project.name, final_task_name, MSG)
