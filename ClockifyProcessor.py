@@ -13,6 +13,7 @@ update_mark = ' *'
 today = date.today().strftime("%Y-%m-%dT00:00:00-04:00")
 
 def call_clockify_api(url):
+    #test
     headers = {'x-api-key' : api_key}
     r =requests.get(url, headers=headers)
     return json.loads(r.content)
@@ -59,7 +60,7 @@ def update_time_entry (workspace_id, time_entry, project_obj, task_obj, tag_obj)
         "taskId": task_id,
         "tagIds": tag_ids
     }
-    r = requests.put(url, headers=headers, data=json.dumps(data))    
+    r = requests.put(url, headers=headers, data=json.dumps(data))
     return json.loads(r.content)
 
 def evaluate_keywords(keywords, project_list, task_list, tag_list):    
@@ -216,50 +217,3 @@ if keywords_valid is True:
         time_entry_output += '({} / {}) {}'.format(final_project.name, final_task_name, msg)
 
         print(time_entry_output)
-
-# User Info Sample:
-# {
-#     "id": "640742a0f2e6b64344c871fa",
-#     "email": "joe.goble@hivefs.com",
-#     "name": "Joe Goble",
-#     "memberships": [],
-#     "profilePicture": "https://img.clockify.me/2023-05-18T12%3A47%3A18.155ZProPhotoSmallSquare.jpg",
-#     "activeWorkspace": "6396899a9b39be4a8aef565f",
-#     "defaultWorkspace": "6396899a9b39be4a8aef565f",
-#     "settings": {
-#         "weekStart": "SUNDAY",
-#         "timeZone": "America/New_York",
-#         "timeFormat": "HOUR12",
-#         "dateFormat": "MM/DD/YYYY",
-#         "sendNewsletter": false,
-#         "weeklyUpdates": true,
-#         "longRunning": true,
-#         "scheduledReports": true,
-#         "approval": true,
-#         "pto": true,
-#         "alerts": true,
-#         "reminders": true,
-#         "timeTrackingManual": true,
-#         "summaryReportSettings": {
-#             "group": "Project",
-#             "subgroup": "Time Entry"
-#         },
-#         "isCompactViewOn": false,
-#         "dashboardSelection": "ME",
-#         "dashboardViewType": "PROJECT",
-#         "dashboardPinToTop": false,
-#         "projectListCollapse": 50,
-#         "collapseAllProjectLists": false,
-#         "groupSimilarEntriesDisabled": false,
-#         "myStartOfDay": "08:00",
-#         "projectPickerTaskFilter": false,
-#         "lang": "EN",
-#         "multiFactorEnabled": true,
-#         "theme": "DARK",
-#         "scheduling": true,
-#         "onboarding": true,
-#         "showOnlyWorkingDays": true
-#     },
-#     "status": "ACTIVE",
-#     "customFields": []
-# }
