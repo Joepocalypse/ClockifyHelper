@@ -1,8 +1,11 @@
 # pylint: disable=consider-using-f-string
+# pylint: disable=import-error
 
-import requests
+"""This is the primary module. Run this to do the work."""
+
 import json
 from datetime import date
+import requests
 from keywords import keywords
 from clockify_project import ClockifyProject
 from clockify_task import ClockifyTask
@@ -23,7 +26,8 @@ def call_clockify_api(url):
 def call_clockify_time_entries_api(workspace_id, user_id):
     """Used to call the Clockify time entry api specifically"""
 
-    url = 'https://api.clockify.me/api/v1/workspaces/{}/user/{}/time-entries'.format(workspace_id, user_id)
+    url = 'https://api.clockify.me/api/v1/workspaces/{}/user/{}/time-entries'.format(
+        workspace_id, user_id)
     headers = {'x-api-key': API_KEY}
     parameters  = {
         "start" : today,
@@ -58,7 +62,7 @@ def update_time_entry (workspace_id, time_entry, project_obj, task_obj, tag_obj)
     else:
         tag_ids = [tag_obj.id]
 
-    if (time_entry.project_id == project_obj.id and time_entry.task_id == task_id and 
+    if (time_entry.project_id == project_obj.id and time_entry.task_id == task_id and
         time_entry.tag_ids == tag_ids) or time_entry.description.endswith(UPDATE_MARK):
         return None
 
@@ -79,7 +83,7 @@ def update_time_entry (workspace_id, time_entry, project_obj, task_obj, tag_obj)
 def evaluate_keywords(keywords, project_list, task_list, tag_list):
     """Evaluates the keywords file to find erroneous entries"""
 
-    keywords_valid = True
+    KEYWORDS_VALID = True
 
     for keyword in keywords:
         # print ("Validating Keyword [{}]".format(keyword))
@@ -92,25 +96,25 @@ def evaluate_keywords(keywords, project_list, task_list, tag_list):
 
         if len(project_results) == 0:
             print("Invalid project [{}] for keyword [{}].".format(current_project, keyword))
-            keywords_valid = False
+            KEYWORDS_VALID = False
         else:
             # Search task list for provided task name, taking parent project into account
-            task_results = [task for task in task_list if (task.name == current_task or 
+            task_results = [task for task in task_list if (task.name == current_task or
                                                            task.id is None) and
                                                            task.project_id == project_results[0].id]
 
             if len(task_results) == 0 and current_task != '':
                 print("Task [{}] does not exist under project [{}] for keyword [{}].".format(
                     current_task, current_project, keyword))
-                keywords_valid = False
+                KEYWORDS_VALID = False
 
             # Search tag list for provided tag name
             tag_results = [tag for tag in tag_list if tag.name == current_tag]
             if len(tag_results) == 0 and current_tag != '':
                 print("Invalid tag [{}] for keyword [{}].".format(current_tag, keyword))
-                keywords_valid = False
+                KEYWORDS_VALID = False
 
-    return keywords_valid
+    return KEYWORDS_VALID
 
 def validate_search_results(results):
     """Checks search results and returns None if no results are present"""
@@ -208,7 +212,7 @@ if keywords_valid is True:
 
         for keyword in keywords:
             if keyword.lower() in time_entry.description.lower() and UPDATES == 0:
-                entry_updated = False
+                ENTRY_UPDATED = False
                 NEW_PROJECT = keywords[keyword]['project']
                 NEW_TASK = keywords[keyword]['task']
                 NEW_TAG = keywords[keyword]['tag']
@@ -225,7 +229,7 @@ if keywords_valid is True:
                                                    new_task_obj, new_tag_obj)
 
                 if update_results is None:
-                    entry_updated = False
+                    ENTRY_UPDATED = False
                 elif update_results['id']:
                     MSG = '| *** Time Entry Updated for Keyword [{}] ***'.format(keyword)
                     UPDATES += 1
@@ -241,13 +245,13 @@ if keywords_valid is True:
                                                        final_time_entry.task_id])
 
                 if final_task is None:
-                    final_task_name = "No Task"
+                    FINAL_TASK_NAME = "No Task"
                 else:
-                    final_task_name = final_task.name
+                    FINAL_TASK_NAME = final_task.name
 
                 if UPDATES > 0:
                     break
 
-        time_entry_output += '({} / {}) {}'.format(final_project.name, final_task_name, MSG)
+        time_entry_output += '({} / {}) {}'.format(final_project.name, FINAL_TASK_NAME, MSG)
 
         print(time_entry_output)
