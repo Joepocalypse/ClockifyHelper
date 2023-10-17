@@ -1,3 +1,5 @@
+"""The keyword dictionary resides in its own module for ease of updating"""
+
 keywords = {
     "vacation": {"project": "OOO", "task": "Vacation", "tag": ""},
     "vendor": {"project": "Tactical", "task": "Vendor Related Work", "tag": "Med"},

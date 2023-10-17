@@ -125,25 +125,25 @@ def validate_search_results(results):
     return valid_result
 
 # ***** CURRENT USER *****
-user_url = 'https://api.clockify.me/api/v1/user'
-user_info = call_clockify_api(user_url)
-workspace_id = user_info['activeWorkspace']
-user_id = user_info['id']
-user_timezone = user_info['settings']['timeZone']
+USER_URL = 'https://api.clockify.me/api/v1/user'
+USER_INFO = call_clockify_api(USER_URL)
+workspace_id = USER_INFO['activeWorkspace']
+user_id = USER_INFO['id']
+user_timezone = USER_INFO['settings']['timeZone']
 
-print('Current User: {}, {} ({})'.format(user_info['name'], user_info['email'], user_timezone))
+print('Current User: {}, {} ({})'.format(USER_INFO['name'], USER_INFO['email'], user_timezone))
 
 # ***** CLIENTS *****
 clients_url = 'https://api.clockify.me/api/v1/workspaces/{}/clients'.format(workspace_id)
 clients_info = call_clockify_api(clients_url)
 
-client_id = ''
+CLIENT_ID = ''
 
 print('Loading clients...')
 for client in clients_info:
     # print('\t {}'.format(client['name']))
     if client['name'] == 'HiveFS':
-        client_id = client['id']
+        CLIENT_ID = client['id']
 
 # ***** PROJECTS & TASKS *****
 projects_url = 'https://api.clockify.me/api/v1/workspaces/{}/projects'.format(workspace_id)
@@ -155,7 +155,7 @@ task_list = []
 
 print('Loading projects and associated tasks...')
 for project in projects_info:
-    if project['archived'] is False and project['clientId'] == client_id:
+    if project['archived'] is False and project['clientId'] == CLIENT_ID:
         this_project = ClockifyProject(project)
         project_list.append(this_project)
 
@@ -193,9 +193,9 @@ for time_entry in time_entries_info:
 # Sort time entries by start datetime
 time_entry_object_list.sort(key=lambda time_entry: time_entry.start)
 
-keywords_valid = evaluate_keywords(keywords, project_list, task_list, tag_list)
+KEYWORDS_VALID = evaluate_keywords(keywords, project_list, task_list, tag_list)
 
-if keywords_valid is True:
+if KEYWORDS_VALID is True:
     # Process/evaluate/update time entries
     for time_entry in time_entry_object_list:
         MSG = ''
