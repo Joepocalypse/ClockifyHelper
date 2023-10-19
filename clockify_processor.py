@@ -14,7 +14,10 @@ from clockify_task import ClockifyTask
 from clockify_time_entry import ClockifyTimeEntry
 from clockify_tag import ClockifyTag
 
-API_KEY = "<YOUR CLOCKIFY API KEY HERE>"
+# api_key.py should contain one uncommented line:
+# API_KEY = "<YOUR CLOCKIFY API KEY VALUE>"
+from api_key import API_KEY
+
 UPDATE_MARK = ' *'
 today = date.today().strftime("%Y-%m-%dT00:00:00-04:00")
 
@@ -126,7 +129,7 @@ def validate_search_results(results):
         valid_result = results[0]
     return valid_result
 
-# ***** CURRENT USER *****
+# ***** RETRIEVE CURRENT USER *****
 USER_URL = 'https://api.clockify.me/api/v1/user'
 USER_INFO = call_clockify_api(USER_URL)
 workspace_id = USER_INFO['activeWorkspace']
@@ -135,7 +138,7 @@ user_timezone = USER_INFO['settings']['timeZone']
 
 print('Current User: {}, {} ({})'.format(USER_INFO['name'], USER_INFO['email'], user_timezone))
 
-# ***** CLIENTS *****
+# ***** RETRIEVE CLIENTS *****
 clients_url = 'https://api.clockify.me/api/v1/workspaces/{}/clients'.format(workspace_id)
 clients_info = call_clockify_api(clients_url)
 
@@ -147,7 +150,7 @@ for client in clients_info:
     if client['name'] == 'HiveFS':
         CLIENT_ID = client['id']
 
-# ***** PROJECTS & TASKS *****
+# ***** RETRIEVE PROJECTS & TASKS *****
 projects_url = 'https://api.clockify.me/api/v1/workspaces/{}/projects'.format(workspace_id)
 projects_info = call_clockify_api(projects_url)
 
@@ -168,7 +171,7 @@ for project in projects_info:
         for task in tasks_info:
             task_list.append(ClockifyTask(task))
 
-# ***** TAGS *****
+# ***** RETRIEVE TAGS *****
 tags_url = 'https://api.clockify.me/api/v1/workspaces/{}/tags'.format(workspace_id)
 tags_info = call_clockify_api(tags_url)
 
@@ -179,7 +182,7 @@ for tag in tags_info:
     tags_dictionary[tag['id']] = tag['name']
     tag_list.append(ClockifyTag(tag))
 
-# ***** TIME ENTRIES *****
+# ***** RETRIEVE TIME ENTRIES *****
 time_entries_url = 'https://api.clockify.me/api/v1/workspaces/{}/user/{}/time-entries'.format(
     workspace_id, user_id)
 time_entries_info = call_clockify_time_entries_api(workspace_id, user_id)
@@ -189,7 +192,6 @@ print('Loading time entries starting on {}...'.format(date.today().strftime("%m/
 time_entry_dictionary = {}
 time_entry_object_list = []
 for time_entry in time_entries_info:
-    time_entry_dictionary[time_entry['timeInterval']['start']] = time_entry
     time_entry_object_list.append(ClockifyTimeEntry(time_entry, user_timezone))
 
 # Sort time entries by start datetime
@@ -203,8 +205,7 @@ if KEY_WORDS_VALID is True:
         MSG = ''
         NEW_PROJECT = ""
         NEW_TASK = {}
-        NEW_TAG = ""
-        UPDATE_NEEDED = False
+        NEW_TAG = ""        
         UPDATES = 0
 
         time_entry_output = '\t{} to {} {}: {} '.format(time_entry.readable_start,
@@ -212,32 +213,49 @@ if KEY_WORDS_VALID is True:
                                                         time_entry.timezone_name,
                                                         time_entry.description)
 
+        # Retrieve original project/task/tag information from the current time entry
+        orig_project_obj = validate_search_results([project for project in project_list
+                                            if project.id == time_entry.project_id])
+
+        orig_task_obj = validate_search_results([task for task in task_list if task.id ==
+                                        time_entry.task_id and task.project_id ==
+                                        orig_project_obj.id])
+
+        orig_tag_obj = validate_search_results([tag for tag in tag_list if tag.name ==
+                                        NEW_TAG])
+        
+        # Validate the project/task/tag information from the current time entry
+        if orig_project_obj is None:
+            FINAL_PROJECT_NAME = "No Project"
+        else:
+            FINAL_PROJECT_NAME = orig_project_obj.name
+
+        if orig_task_obj is None:
+            FINAL_TASK_NAME = "No Task"
+        else:
+            FINAL_TASK_NAME = orig_task_obj.name
+
+        # Search for each keyword in the current time entry's description
         for keyword in keywords:
             if keyword.lower() in time_entry.description.lower() and UPDATES == 0:
-                ENTRY_UPDATED = False
                 NEW_PROJECT = keywords[keyword]['project']
                 NEW_TASK = keywords[keyword]['task']
                 NEW_TAG = keywords[keyword]['tag']
 
-                new_project_obj = validate_search_results([project for project in project_list
-                                                           if project.name == NEW_PROJECT])
-                new_task_obj = validate_search_results([task for task in task_list if task.name ==
-                                                        NEW_TASK and task.project_id ==
-                                                        new_project_obj.id])
-                new_tag_obj = validate_search_results([tag for tag in tag_list if tag.name ==
-                                                       NEW_TAG])
+                # Try to update the current time entry with potentially new project/task/tag info
+                update_results = update_time_entry(workspace_id, time_entry, orig_project_obj,
+                                                   orig_task_obj, orig_tag_obj)
 
-                update_results = update_time_entry(workspace_id, time_entry, new_project_obj,
-                                                   new_task_obj, new_tag_obj)
-
+                # Evaluate update attempt results
                 if update_results is None:
-                    ENTRY_UPDATED = False
+                    UPDATES += 0
                 elif update_results['id']:
                     MSG = '| *** Time Entry Updated for Keyword [{}] ***'.format(keyword)
                     UPDATES += 1
                 else:
                     print_api_call_results(update_results)
-
+                
+                # Retrieve potentially updated project/task/tag info from the current time entry
                 final_time_entry = ClockifyTimeEntry(get_time_entry(workspace_id, time_entry.id),
                                                      user_timezone)
                 final_project = validate_search_results([project for project
@@ -246,14 +264,27 @@ if KEY_WORDS_VALID is True:
                 final_task = validate_search_results([task for task in task_list if task.id ==
                                                        final_time_entry.task_id])
 
+                # Validate the project/task/tag info from the current time entry now that it
+                # has been updated                
+                if final_project is None:
+                    FINAL_PROJECT_NAME = "No Project"
+                else:
+                    FINAL_PROJECT_NAME = final_project.name
+
                 if final_task is None:
                     FINAL_TASK_NAME = "No Task"
                 else:
                     FINAL_TASK_NAME = final_task.name
 
+                # Break to avoid unneeded iterations through the keywords
                 if UPDATES > 0:
                     break
+            else:
+                if time_entry.description.endswith(UPDATE_MARK):
+                    MSG = '| *** No Updates Required ***'
+                else:
+                    MSG = '| *** No Keywords Found ***'
 
-        time_entry_output += '({} / {}) {}'.format(final_project.name, FINAL_TASK_NAME, MSG)
-
+        # Print final project/task/tag info for the current time entry
+        time_entry_output += '({} / {}) {}'.format(FINAL_PROJECT_NAME, FINAL_TASK_NAME, MSG)
         print(time_entry_output)
