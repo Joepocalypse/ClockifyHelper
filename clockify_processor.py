@@ -241,9 +241,20 @@ if KEY_WORDS_VALID is True:
                 NEW_TASK = keywords[keyword]['task']
                 NEW_TAG = keywords[keyword]['tag']
 
+                # Retrieve new project/task/tag information based on the keywords
+                new_project_obj = validate_search_results([project for project in project_list
+                                                    if project.name == NEW_PROJECT])
+
+                new_task_obj = validate_search_results([task for task in task_list if task.name ==
+                                                NEW_TASK and task.project_id ==
+                                                new_project_obj.id])
+
+                new_tag_obj = validate_search_results([tag for tag in tag_list if tag.name ==
+                                                NEW_TAG])
+
                 # Try to update the current time entry with potentially new project/task/tag info
-                update_results = update_time_entry(workspace_id, time_entry, orig_project_obj,
-                                                   orig_task_obj, orig_tag_obj)
+                update_results = update_time_entry(workspace_id, time_entry, new_project_obj,
+                                                   new_task_obj, new_tag_obj)
 
                 # Evaluate update attempt results
                 if update_results is None:
