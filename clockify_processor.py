@@ -8,15 +8,14 @@
 import json
 from datetime import date
 import requests
+# api_key.py should contain one uncommented line:
+# API_KEY = "<YOUR CLOCKIFY API KEY VALUE>"
+from api_key import API_KEY
 from keywords import keywords
 from clockify_project import ClockifyProject
 from clockify_task import ClockifyTask
 from clockify_time_entry import ClockifyTimeEntry
 from clockify_tag import ClockifyTag
-
-# api_key.py should contain one uncommented line:
-# API_KEY = "<YOUR CLOCKIFY API KEY VALUE>"
-from api_key import API_KEY
 
 UPDATE_MARK = ' *'
 today = date.today().strftime("%Y-%m-%dT00:00:00-04:00")
@@ -205,7 +204,7 @@ if KEY_WORDS_VALID is True:
         MSG = ''
         NEW_PROJECT = ""
         NEW_TASK = {}
-        NEW_TAG = ""        
+        NEW_TAG = ""
         UPDATES = 0
 
         time_entry_output = '\t{} to {} {}: {} '.format(time_entry.readable_start,
@@ -223,7 +222,7 @@ if KEY_WORDS_VALID is True:
 
         orig_tag_obj = validate_search_results([tag for tag in tag_list if tag.name ==
                                         NEW_TAG])
-        
+
         # Validate the project/task/tag information from the current time entry
         if orig_project_obj is None:
             FINAL_PROJECT_NAME = "No Project"
@@ -254,7 +253,7 @@ if KEY_WORDS_VALID is True:
                     UPDATES += 1
                 else:
                     print_api_call_results(update_results)
-                
+
                 # Retrieve potentially updated project/task/tag info from the current time entry
                 final_time_entry = ClockifyTimeEntry(get_time_entry(workspace_id, time_entry.id),
                                                      user_timezone)
@@ -265,7 +264,7 @@ if KEY_WORDS_VALID is True:
                                                        final_time_entry.task_id])
 
                 # Validate the project/task/tag info from the current time entry now that it
-                # has been updated                
+                # has been updated
                 if final_project is None:
                     FINAL_PROJECT_NAME = "No Project"
                 else:
